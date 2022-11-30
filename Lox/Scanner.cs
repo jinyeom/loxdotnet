@@ -2,8 +2,29 @@ namespace Lox;
 
 class Scanner
 {
+    static IDictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
+    {
+        { "and", TokenType.And },
+        { "class", TokenType.Class },
+        { "else", TokenType.Else },
+        { "false", TokenType.False },
+        { "for", TokenType.For },
+        { "fun", TokenType.Fun },
+        { "if", TokenType.If },
+        { "nil", TokenType.Nil },
+        { "or", TokenType.Or },
+        { "print", TokenType.Print },
+        { "return", TokenType.Return },
+        { "super", TokenType.Super },
+        { "this", TokenType.This },
+        { "true", TokenType.True },
+        { "var", TokenType.Var },
+        { "while", TokenType.While },
+    };
+
     readonly string source;
     readonly List<Token> tokens;
+
     int start = 0;
     int current = 0;
     int line = 1;
@@ -15,17 +36,18 @@ class Scanner
     public Scanner(string source)
     {
         this.source = source;
-        this.tokens = new List<Token>();
+        tokens = new List<Token>();
     }
 
     /// <summary>
-    /// Helper method that returns true if the scanner has consumed all characters in the source.
+    /// Whether the scanner has consumed all characters in the source.
     /// </summary>
-    /// <returns>True if the scanner has reached the end.</returns>
-    bool IsAtEnd()
-    {
-        return current >= source.Length;
-    }
+    bool IsAtEnd { get { return current >= source.Length; } }
+
+    /// <summary>
+    /// Currently selected text in the source code.
+    /// </summary>
+    string CurrentText { get { return source[start..current]; } }
 
     /// <summary>
     /// Scan tokens until it reaches the end of file.
@@ -33,7 +55,7 @@ class Scanner
     /// <returns>List of tokens.</returns>
     public List<Token> ScanTokens()
     {
-        while (!IsAtEnd())
+        while (!IsAtEnd)
         {
             start = current;
             ScanToken();
@@ -67,7 +89,7 @@ class Scanner
             case '/':
                 if (Match('/'))
                 {
-                    while (Peek() != '\n' && !IsAtEnd())
+                    while (Peek() != '\n' && !IsAtEnd)
                     {
                         Advance();
                     }
@@ -89,21 +111,50 @@ class Scanner
                 String();
                 break;
             default:
-                if (Char.IsDigit(currentCharacter))
+                if (IsDigit(currentCharacter))
                 {
                     Number();
                 }
-                else if (Char.IsLetter(currentCharacter))
+                else if (IsLetterOrUnderscore(currentCharacter))
                 {
                     Identifier();
                 }
                 else
                 {
-                    // TODO: handle error from a separate class, not Program. 
                     Program.Error(line, $"Unexpected character: {currentCharacter}");
                 }
                 break;
         }
+    }
+
+    /// <summary>
+    /// Helper method that determines whether the argument character is a digit.
+    /// </summary>
+    /// <param name="c"></param>
+    /// <returns>True if the argument character is a digit.</returns>
+    bool IsDigit(char c)
+    {
+        return char.IsDigit(c);
+    }
+
+    /// <summary>
+    /// Helper method that determines whether the argument character is a letter or an underscore.
+    /// </summary>
+    /// <param name="c"></param>
+    /// <returns>True if the argument character is a letter or an underscore.</returns>
+    bool IsLetterOrUnderscore(char c)
+    {
+        return char.IsLetter(c) || c == '_';
+    }
+
+    /// <summary>
+    /// Helper method that determines whether the argument character is alphanumeric (or underscore).
+    /// </summary>
+    /// <param name="c"></param>
+    /// <returns>True if the argument character is alphanumeric or an underscore.</returns>
+    bool IsAlphaNumericOrUnderscore(char c)
+    {
+        return IsDigit(c) || IsLetterOrUnderscore(c);
     }
 
     /// <summary>
@@ -131,8 +182,9 @@ class Scanner
     /// <param name="literal">Literal object.</param>
     void AddToken(TokenType type, object? literal)
     {
-        var text = source[start..current];
-        tokens.Add(new Token(type, text, literal, line));
+        var text = CurrentText;
+        var token = new Token(type, text, literal, line);
+        tokens.Add(token);
     }
 
     /// <summary>
@@ -142,7 +194,7 @@ class Scanner
     /// <returns>True if the current character matches the argument character, false otherwise.</returns>
     bool Match(char expected)
     {
-        if (IsAtEnd())
+        if (IsAtEnd)
         {
             return false;
         }
@@ -160,7 +212,7 @@ class Scanner
     /// <returns>Current character; returns a null character if the scanner is at EOF.</returns>
     char Peek()
     {
-        if (IsAtEnd())
+        if (IsAtEnd)
         {
             return '\0';
         }
@@ -172,7 +224,7 @@ class Scanner
     /// </summary>
     void String()
     {
-        while (!IsAtEnd() && Peek() != '"')
+        while (!IsAtEnd && Peek() != '"')
         {
             if (Peek() == '\n')
             {
@@ -181,7 +233,7 @@ class Scanner
             Advance();
         }
 
-        if (IsAtEnd())
+        if (IsAtEnd)
         {
             Program.Error(line, "Unterminated string.");
             return;
@@ -204,18 +256,18 @@ class Scanner
     {
         var advanceDigits = () =>
         {
-            while (Char.IsDigit(Peek()))
+            while (IsDigit(Peek()))
             {
                 Advance();
             }
         };
         advanceDigits();
-        if (Peek() == '.' && Char.IsDigit(PeekNext()))
+        if (Peek() == '.' && IsDigit(PeekNext()))
         {
             Advance(); // "."
             advanceDigits();
         }
-        var number = Convert.ToDouble(source[start..current]);
+        var number = Convert.ToDouble(CurrentText);
         AddToken(TokenType.Number, number);
     }
 
@@ -237,10 +289,17 @@ class Scanner
     /// </summary>
     void Identifier()
     {
-        while (Char.IsLetterOrDigit(Peek()))
+        while (IsAlphaNumericOrUnderscore(Peek()))
         {
             Advance();
         }
-        AddToken(TokenType.Identifier);
+
+        var text = CurrentText;
+        var type = TokenType.Identifier;
+        if (keywords.ContainsKey(text))
+        {
+            type = keywords[text];
+        }
+        AddToken(type);
     }
 }

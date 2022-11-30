@@ -22,6 +22,16 @@ static class Program
         }
         else
         {
+            var expression = new Expr.Binary(
+                new Expr.Unary(
+                    new Token(TokenType.Minus, "-", null, 1),
+                    new Expr.Literal(123)),
+                new Token(TokenType.Star, "*", null, 1),
+                new Expr.Grouping(
+                    new Expr.Literal(45.67)));
+
+            Console.WriteLine(new AstPrinter().Print(expression));
+
             RunPrompt();
         }
     }
@@ -65,10 +75,20 @@ static class Program
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
 
-        foreach (var token in tokens)
+        var parser = new Parser(tokens);
+        var expr = parser.Parse()!;
+
+        if (hadError)
         {
-            Console.WriteLine(token);
+            return;
         }
+
+        Console.WriteLine(new AstPrinter().Print(expr));
+    }
+
+    static void Report(int line, string where, string message)
+    {
+        Console.Error.WriteLine($"[line {line}] Error {where}: {message}");
     }
 
     public static void Error(int line, string message)
@@ -76,8 +96,15 @@ static class Program
         Report(line, "", message);
     }
 
-    static void Report(int line, string where, string message)
+    public static void Error(Token token, string message)
     {
-        Console.Error.WriteLine($"[line {line}] Error {where}: {message}");
+        if (token.Type == TokenType.Eof)
+        {
+            Report(token.Line, " at end", message);
+        }
+        else
+        {
+            Report(token.Line, $"at {token.Lexeme}", message);
+        }
     }
 }
