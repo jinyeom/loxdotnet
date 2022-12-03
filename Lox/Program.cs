@@ -7,7 +7,10 @@ static class Program
     const string UsageMessage = "Usage: lox [script]";
     const string PromptSymbol = ">";
 
+    static readonly Interpreter interpreter = new Interpreter();
+
     static bool hadError = false;
+    static bool hadRuntimeError = false;
 
     public static void Main(string[] args)
     {
@@ -50,6 +53,10 @@ static class Program
         {
             Environment.Exit(65);
         }
+        if (hadRuntimeError)
+        {
+            Environment.Exit(70);
+        }
     }
 
     /// <summary>
@@ -76,14 +83,14 @@ static class Program
         var tokens = scanner.ScanTokens();
 
         var parser = new Parser(tokens);
-        var expr = parser.Parse()!;
+        var expr = parser.Parse();
 
         if (hadError)
         {
             return;
         }
 
-        Console.WriteLine(new AstPrinter().Print(expr));
+        interpreter.Interpret(expr!);
     }
 
     static void Report(int line, string where, string message)
@@ -106,5 +113,11 @@ static class Program
         {
             Report(token.Line, $"at {token.Lexeme}", message);
         }
+    }
+
+    public static void RuntimeError(RuntimeError error)
+    {
+        Console.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
+        hadRuntimeError = true;
     }
 }

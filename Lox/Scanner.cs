@@ -2,7 +2,7 @@ namespace Lox;
 
 class Scanner
 {
-    static IDictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
+    static readonly IDictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
     {
         { "and", TokenType.And },
         { "class", TokenType.Class },
