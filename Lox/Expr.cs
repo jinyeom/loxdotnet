@@ -15,6 +15,7 @@ abstract class Expr
         R Visit(Grouping expr);
         R Visit(Literal expr);
         R Visit(Unary expr);
+        R Visit(Variable expr);
     }
 
     /// <summary>
@@ -96,6 +97,21 @@ abstract class Expr
 
         public Token Op { get; init; }
         public Expr Right { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
+
+    internal class Variable : Expr
+    {
+        public Variable(Token name)
+        {
+            Name = name;
+        }
+
+        public Token Name { get; init; }
 
         public override R Accept<R>(IVisitor<R> visitor)
         {

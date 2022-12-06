@@ -1,18 +1,25 @@
 ﻿namespace Lox;
 
-class Interpreter : Expr.IVisitor<object?>
+class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
-    public void Interpret(Expr expr)
+    public void Interpret(IList<Stmt> statements)
     {
         try
         {
-            var value = Evaluate(expr);
-            Console.WriteLine(Stringify(value));
+            foreach (var statement in statements)
+            {
+                Execute(statement);
+            }
         }
         catch (RuntimeError error)
         {
             Program.RuntimeError(error);
         }
+    }
+
+    void Execute(Stmt stmt)
+    {
+        stmt.Accept(this);
     }
 
     string? Stringify(object? value)
@@ -99,6 +106,19 @@ class Interpreter : Expr.IVisitor<object?>
                 return -(double)right;
         }
         // Should be unreachable.
+        return null;
+    }
+
+    public object? Visit(Stmt.Expression stmt)
+    {
+        Evaluate(stmt.Expr);
+        return null;
+    }
+
+    public object? Visit(Stmt.Print stmt)
+    {
+        var value = Evaluate(stmt.Expr);
+        Console.WriteLine(Stringify(value));
         return null;
     }
 

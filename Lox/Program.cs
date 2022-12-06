@@ -83,14 +83,14 @@ static class Program
         var tokens = scanner.ScanTokens();
 
         var parser = new Parser(tokens);
-        var expr = parser.Parse();
+        var stmts = parser.Parse();
 
         if (hadError)
         {
             return;
         }
 
-        interpreter.Interpret(expr!);
+        interpreter.Interpret(stmts);
     }
 
     static void Report(int line, string where, string message)

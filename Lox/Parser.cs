@@ -30,16 +30,86 @@ class Parser
     /// </summary>
     Token PreviousToken { get { return tokens[current - 1]; } }
 
-    public Expr? Parse()
+    public IList<Stmt?> Parse()
+    {
+        var statements = new List<Stmt?>();
+        while (!IsAtEnd)
+        {
+            statements.Add(Declaration());
+        }
+        return statements;
+    }
+
+    /// <summary>
+    /// Helper method that expands declaration.
+    /// </summary>
+    /// <returns></returns>
+    Stmt? Declaration()
     {
         try
         {
-            return Expression();
+            if (Match(TokenType.Var))
+            {
+                return VarDeclaration();
+            }
+            return Statement();
         }
         catch (ParseError)
         {
+            Synchronize();
             return null;
         }
+    }
+
+    /// <summary>
+    /// Helper method that expands variable declaration.
+    /// </summary>
+    /// <returns></returns>
+    Stmt VarDeclaration()
+    {
+        var name = Consume(TokenType.Identifier, "Expect variable name.");
+        Expr? initializer = null;
+        if (Match(TokenType.Equal))
+        {
+            initializer = Expression();
+        }
+        Consume(TokenType.Semicolon, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initializer);
+    }
+
+    /// <summary>
+    /// Helper method that expands Statement.
+    /// </summary>
+    /// <returns></returns>
+    Stmt Statement()
+    {
+        if (Match(TokenType.Print))
+        {
+            return PrintStatement();
+        }
+        return ExpressionStatement();
+    }
+
+    /// <summary>
+    /// Helper method that expands print statement.
+    /// </summary>
+    /// <returns></returns>
+    Stmt PrintStatement()
+    {
+        Expr value = Expression();
+        Consume(TokenType.Semicolon, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    /// <summary>
+    /// Helper method that expands expression statement.
+    /// </summary>
+    /// <returns></returns>
+    Stmt ExpressionStatement()
+    {
+        Expr value = Expression();
+        Consume(TokenType.Semicolon, "Expect ';' after value.");
+        return new Stmt.Expression(value);
     }
 
     /// <summary>
@@ -157,6 +227,10 @@ class Parser
             var expr = Expression();
             Consume(TokenType.RightParenthesis, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
+        }
+        if (Match(TokenType.Identifier))
+        {
+            return new Expr.Variable(PreviousToken);
         }
         throw Error(CurrentToken, "Expect expression.");
     }
