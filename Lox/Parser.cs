@@ -30,6 +30,10 @@ class Parser
     /// </summary>
     Token PreviousToken { get { return tokens[current - 1]; } }
 
+    /// <summary>
+    /// Parse the list of tokens.
+    /// </summary>
+    /// <returns></returns>
     public IList<Stmt?> Parse()
     {
         var statements = new List<Stmt?>();
@@ -118,7 +122,16 @@ class Parser
     /// <returns></returns>
     Expr Expression()
     {
-        return Equality();
+        return Assignment();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    Expr Assignment()
+    {
+
     }
 
     /// <summary>

@@ -2,6 +2,8 @@
 
 class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
+    Environment environment = new Environment();
+
     public void Interpret(IList<Stmt> statements)
     {
         try
@@ -109,6 +111,12 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
+    public object? Visit(Expr.Variable expr)
+    {
+        return environment.Get(expr.Name);
+    }
+
+
     public object? Visit(Stmt.Expression stmt)
     {
         Evaluate(stmt.Expr);
@@ -119,6 +127,17 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         var value = Evaluate(stmt.Expr);
         Console.WriteLine(Stringify(value));
+        return null;
+    }
+
+    public object? Visit(Stmt.Var stmt)
+    {
+        object? value = null;
+        if (stmt.Initializer != null)
+        {
+            value = Evaluate(stmt.Initializer);
+        }
+        environment.Define(stmt.Name.Lexeme, value);
         return null;
     }
 

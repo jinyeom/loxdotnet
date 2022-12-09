@@ -29,6 +29,11 @@ class AstPrinter : Expr.IVisitor<string>
         return Parenthesize(expr.Op.Lexeme, expr.Right);
     }
 
+    public string Visit(Expr.Variable expr)
+    {
+        return $"var {expr.Name}";
+    }
+
     /// <summary>
     /// Helper method that prints an expression in parenthesis.
     /// </summary>

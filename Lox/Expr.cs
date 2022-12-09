@@ -12,6 +12,7 @@ abstract class Expr
     internal interface IVisitor<R>
     {
         R Visit(Binary expr);
+        R Visit(Assign expr);
         R Visit(Grouping expr);
         R Visit(Literal expr);
         R Visit(Unary expr);
@@ -47,6 +48,28 @@ abstract class Expr
             return visitor.Visit(this);
         }
     }
+
+    /// <summary>
+    /// Assignment expression.
+    /// </summary>
+    internal class Assign : Expr
+    {
+        public Assign(Token name, Expr value)
+        {
+            Name = name;
+            Value = value;
+        }
+
+        public Token Name { get; init; }
+
+        public Expr Value { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
+
 
     /// <summary>
     /// Grouping expression.
