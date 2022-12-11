@@ -1,8 +1,5 @@
 namespace Lox;
 
-/// <summary>
-/// Enumeration of token types used in Lox.
-/// </summary>
 enum TokenType : byte
 {
     // Single-character tokens
@@ -54,11 +51,4 @@ enum TokenType : byte
     Eof
 }
 
-/// <summary>
-/// Read-only record struct type for tokens used during lexing.
-/// </summary>
-/// <param name="Type"></param>
-/// <param name="Lexeme"></param>
-/// <param name="Literal"></param>
-/// <param name="Line"></param>
 readonly record struct Token(TokenType Type, string Lexeme, object? Literal, int Line);

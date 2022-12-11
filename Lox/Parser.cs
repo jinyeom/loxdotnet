@@ -15,25 +15,12 @@ class Parser
         this.tokens = tokens;
     }
 
-    /// <summary>
-    /// Whether the current token is EOF.
-    /// </summary>
     bool IsAtEnd { get { return CurrentToken.Type == TokenType.Eof; } }
 
-    /// <summary>
-    /// Current token.
-    /// </summary>
     Token CurrentToken { get { return tokens[current]; } }
 
-    /// <summary>
-    /// Previous token.
-    /// </summary>
     Token PreviousToken { get { return tokens[current - 1]; } }
 
-    /// <summary>
-    /// Parse the list of tokens.
-    /// </summary>
-    /// <returns></returns>
     public IList<Stmt?> Parse()
     {
         var statements = new List<Stmt?>();
@@ -44,10 +31,6 @@ class Parser
         return statements;
     }
 
-    /// <summary>
-    /// Helper method that expands declaration.
-    /// </summary>
-    /// <returns></returns>
     Stmt? Declaration()
     {
         try
@@ -65,10 +48,6 @@ class Parser
         }
     }
 
-    /// <summary>
-    /// Helper method that expands variable declaration.
-    /// </summary>
-    /// <returns></returns>
     Stmt VarDeclaration()
     {
         var name = Consume(TokenType.Identifier, "Expect variable name.");
@@ -81,10 +60,6 @@ class Parser
         return new Stmt.Var(name, initializer);
     }
 
-    /// <summary>
-    /// Helper method that expands Statement.
-    /// </summary>
-    /// <returns></returns>
     Stmt Statement()
     {
         if (Match(TokenType.Print))
@@ -94,10 +69,6 @@ class Parser
         return ExpressionStatement();
     }
 
-    /// <summary>
-    /// Helper method that expands print statement.
-    /// </summary>
-    /// <returns></returns>
     Stmt PrintStatement()
     {
         Expr value = Expression();
@@ -105,10 +76,6 @@ class Parser
         return new Stmt.Print(value);
     }
 
-    /// <summary>
-    /// Helper method that expands expression statement.
-    /// </summary>
-    /// <returns></returns>
     Stmt ExpressionStatement()
     {
         Expr value = Expression();
@@ -116,28 +83,28 @@ class Parser
         return new Stmt.Expression(value);
     }
 
-    /// <summary>
-    /// Helper method that expands Expression.
-    /// </summary>
-    /// <returns></returns>
     Expr Expression()
     {
         return Assignment();
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
     Expr Assignment()
     {
-
+        var expr = Equality();
+        if (Match(TokenType.Equal))
+        {
+            var equal = PreviousToken;
+            var value = Assignment();
+            if (expr is Expr.Variable)
+            {
+                var name = ((Expr.Variable)expr).Name;
+                return new Expr.Assign(name, value);
+            }
+            Error(equal, "Invalid assignment target.");
+        }
+        return expr;
     }
 
-    /// <summary>
-    /// Helper method that expands Equality.
-    /// </summary>
-    /// <returns></returns>
     Expr Equality()
     {
         var expr = Comparison();
@@ -150,10 +117,6 @@ class Parser
         return expr;
     }
 
-    /// <summary>
-    /// Helper method that expands Comparison.
-    /// </summary>
-    /// <returns></returns>
     Expr Comparison()
     {
         var expr = Term();
@@ -166,10 +129,6 @@ class Parser
         return expr;
     }
 
-    /// <summary>
-    /// Helper method that expands Term.
-    /// </summary>
-    /// <returns></returns>
     Expr Term()
     {
         var expr = Factor();
@@ -182,10 +141,6 @@ class Parser
         return expr;
     }
 
-    /// <summary>
-    /// Helper method that expands Factor.
-    /// </summary>
-    /// <returns></returns>
     Expr Factor()
     {
         var expr = Unary();
@@ -198,10 +153,6 @@ class Parser
         return expr;
     }
 
-    /// <summary>
-    /// Helper method that expands Unary.
-    /// </summary>
-    /// <returns></returns>
     Expr Unary()
     {
         if (Match(TokenType.Bang, TokenType.Minus))
@@ -213,10 +164,6 @@ class Parser
         return Primary();
     }
 
-    /// <summary>
-    /// Helper method that expands Primary.
-    /// </summary>
-    /// <returns></returns>
     Expr Primary()
     {
         if (Match(TokenType.False))
@@ -248,11 +195,6 @@ class Parser
         throw Error(CurrentToken, "Expect expression.");
     }
 
-    /// <summary>
-    /// Helper method that determines whether the current token has any of the given type.
-    /// </summary>
-    /// <param name="types"></param>
-    /// <returns></returns>
     bool Match(params TokenType[] types)
     {
         foreach (var t in types)
@@ -266,20 +208,11 @@ class Parser
         return false;
     }
 
-    /// <summary>
-    /// Helper method that checks if the current token is of the argument type.
-    /// </summary>
-    /// <param name="t"></param>
-    /// <returns></returns>
     bool Check(TokenType t)
     {
         return IsAtEnd ? false : CurrentToken.Type == t;
     }
 
-    /// <summary>
-    /// Helper method that advances the token pointer.
-    /// </summary>
-    /// <returns>Current token before advancing.</returns>
     Token Advance()
     {
         if (!IsAtEnd)
@@ -289,10 +222,6 @@ class Parser
         return PreviousToken;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
     Token Consume(TokenType type, string message)
     {
         if (Check(type))
@@ -302,21 +231,12 @@ class Parser
         throw Error(CurrentToken, message);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="token"></param>
-    /// <param name="message"></param>
-    /// <returns></returns>
     ParseError Error(Token token, string message)
     {
         Program.Error(token, message);
         return new ParseError();
     }
 
-    /// <summary>
-    /// Helper method that discards tokens until the beginning of the next statement.
-    /// </summary>
     void Synchronize()
     {
         Advance();

@@ -2,10 +2,6 @@
 
 abstract class Stmt
 {
-    /// <summary>
-    /// Visitor interface.
-    /// </summary>
-    /// <typeparam name="R">Result type.</typeparam>
     internal interface IVisitor<R>
     {
         R Visit(Expression stmt);
@@ -13,12 +9,6 @@ abstract class Stmt
         R Visit(Var stmt);
     }
 
-    /// <summary>
-    /// Abstract method for accepting a visitor.
-    /// </summary>
-    /// <typeparam name="R">Result type.</typeparam>
-    /// <param name="visitor"></param>
-    /// <returns></returns>
     public abstract R Accept<R>(IVisitor<R> visitor);
 
     internal class Expression : Stmt

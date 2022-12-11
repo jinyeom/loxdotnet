@@ -40,10 +40,6 @@ static class Program
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="path"></param>
     static void RunFile(string path)
     {
         var bytes = File.ReadAllBytes(path);
@@ -60,9 +56,6 @@ static class Program
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     static void RunPrompt()
     {
         while (true)
