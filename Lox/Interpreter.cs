@@ -137,6 +137,12 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
+    public object? Visit(Stmt.Block stmt)
+    {
+        ExecuteBlock(stmt.Statements, new Environment(environment));
+        return null;
+    }
+
     public object? Visit(Stmt.Var stmt)
     {
         object? value = null;
@@ -192,6 +198,26 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         if (!(left is double && right is double))
         {
             throw new RuntimeError(op, "Operands must be numbers.");
+        }
+    }
+
+    void ExecuteBlock(IList<Stmt?> statements, Environment environment)
+    {
+        var previous = this.environment;
+        try
+        {
+            this.environment = environment;
+            foreach (var statement in statements)
+            {
+                if (statement != null)
+                {
+                    Execute(statement);
+                }
+            }
+        }
+        finally
+        {
+            this.environment = previous;
         }
     }
 }

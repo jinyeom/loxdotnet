@@ -4,12 +4,28 @@ abstract class Stmt
 {
     internal interface IVisitor<R>
     {
+        R Visit(Block stmt);
         R Visit(Expression stmt);
         R Visit(Print stmt);
         R Visit(Var stmt);
     }
 
     public abstract R Accept<R>(IVisitor<R> visitor);
+
+    internal class Block : Stmt
+    {
+        public Block(IList<Stmt?> statements)
+        {
+            Statements = statements;
+        }
+
+        public IList<Stmt?> Statements { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
 
     internal class Expression : Stmt
     {
