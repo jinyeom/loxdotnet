@@ -1,8 +1,5 @@
 ﻿namespace Lox;
 
-/// <summary>
-/// Expression.
-/// </summary>
 abstract class Expr
 {
     internal interface IVisitor<R>

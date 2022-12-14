@@ -29,30 +29,16 @@ class Scanner
     int current = 0;
     int line = 1;
 
-    /// <summary>
-    /// Scanner constructor.
-    /// </summary>
-    /// <param name="source">Source to be scanned.</param>
     public Scanner(string source)
     {
         this.source = source;
         tokens = new List<Token>();
     }
 
-    /// <summary>
-    /// Whether the scanner has consumed all characters in the source.
-    /// </summary>
     bool IsAtEnd { get { return current >= source.Length; } }
 
-    /// <summary>
-    /// Currently selected text in the source code.
-    /// </summary>
     string CurrentText { get { return source[start..current]; } }
 
-    /// <summary>
-    /// Scan tokens until it reaches the end of file.
-    /// </summary>
-    /// <returns>List of tokens.</returns>
     public List<Token> ScanTokens()
     {
         while (!IsAtEnd)
@@ -64,9 +50,6 @@ class Scanner
         return tokens;
     }
 
-    /// <summary>
-    /// Helper method that scans a single token.
-    /// </summary>
     void ScanToken()
     {
         var currentCharacter = Advance();
@@ -127,59 +110,31 @@ class Scanner
         }
     }
 
-    /// <summary>
-    /// Helper method that determines whether the argument character is a digit.
-    /// </summary>
-    /// <param name="c"></param>
-    /// <returns>True if the argument character is a digit.</returns>
     bool IsDigit(char c)
     {
         return char.IsDigit(c);
     }
 
-    /// <summary>
-    /// Helper method that determines whether the argument character is a letter or an underscore.
-    /// </summary>
-    /// <param name="c"></param>
-    /// <returns>True if the argument character is a letter or an underscore.</returns>
     bool IsLetterOrUnderscore(char c)
     {
         return char.IsLetter(c) || c == '_';
     }
 
-    /// <summary>
-    /// Helper method that determines whether the argument character is alphanumeric (or underscore).
-    /// </summary>
-    /// <param name="c"></param>
-    /// <returns>True if the argument character is alphanumeric or an underscore.</returns>
     bool IsAlphaNumericOrUnderscore(char c)
     {
         return IsDigit(c) || IsLetterOrUnderscore(c);
     }
 
-    /// <summary>
-    /// Helper method that returns the current character and advances to the next character in source.
-    /// </summary>
-    /// <returns>Consumed character before advancing the scanner.</returns>
     char Advance()
     {
         return source[current++];
     }
 
-    /// <summary>
-    /// Helper method that adds a new token with the argument token type.
-    /// </summary>
-    /// <param name="type">Token type.</param>
     void AddToken(TokenType type)
     {
         AddToken(type, null);
     }
 
-    /// <summary>
-    /// Helper method that adds a new token with the argument token type and literal.
-    /// </summary>
-    /// <param name="type">Token type.</param>
-    /// <param name="literal">Literal object.</param>
     void AddToken(TokenType type, object? literal)
     {
         var text = CurrentText;
@@ -187,11 +142,6 @@ class Scanner
         tokens.Add(token);
     }
 
-    /// <summary>
-    /// Helper method that advances to the next character and returns true if the current character matches the argument character.
-    /// </summary>
-    /// <param name="expected">Character to match the current character against.</param>
-    /// <returns>True if the current character matches the argument character, false otherwise.</returns>
     bool Match(char expected)
     {
         if (IsAtEnd)
@@ -206,10 +156,6 @@ class Scanner
         return true;
     }
 
-    /// <summary>
-    /// Helper method that returns the current character.
-    /// </summary>
-    /// <returns>Current character; returns a null character if the scanner is at EOF.</returns>
     char Peek()
     {
         if (IsAtEnd)
@@ -219,9 +165,6 @@ class Scanner
         return source[current];
     }
 
-    /// <summary>
-    /// Helper method that adds a string literal token.
-    /// </summary>
     void String()
     {
         while (!IsAtEnd && Peek() != '"')
@@ -249,9 +192,6 @@ class Scanner
         AddToken(TokenType.String, literal);
     }
 
-    /// <summary>
-    /// Helper method that adds a number literal token.
-    /// </summary>
     void Number()
     {
         var advanceDigits = () =>
@@ -271,10 +211,6 @@ class Scanner
         AddToken(TokenType.Number, number);
     }
 
-    /// <summary>
-    /// Helper method that returns the next character.
-    /// </summary>
-    /// <returns>Next character.</returns>
     char PeekNext()
     {
         if (current + 1 >= source.Length)
@@ -284,9 +220,6 @@ class Scanner
         return source[current + 1];
     }
 
-    /// <summary>
-    /// Helper method that adds an identifier token.
-    /// </summary>
     void Identifier()
     {
         while (IsAlphaNumericOrUnderscore(Peek()))

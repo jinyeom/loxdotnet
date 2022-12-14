@@ -2,24 +2,30 @@
 
 abstract class Stmt
 {
-    /// <summary>
-    /// Visitor interface.
-    /// </summary>
-    /// <typeparam name="R">Result type.</typeparam>
     internal interface IVisitor<R>
     {
+        R Visit(Block stmt);
         R Visit(Expression stmt);
         R Visit(Print stmt);
         R Visit(Var stmt);
     }
 
-    /// <summary>
-    /// Abstract method for accepting a visitor.
-    /// </summary>
-    /// <typeparam name="R">Result type.</typeparam>
-    /// <param name="visitor"></param>
-    /// <returns></returns>
     public abstract R Accept<R>(IVisitor<R> visitor);
+
+    internal class Block : Stmt
+    {
+        public Block(IList<Stmt?> statements)
+        {
+            Statements = statements;
+        }
+
+        public IList<Stmt?> Statements { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
 
     internal class Expression : Stmt
     {
