@@ -5,10 +5,6 @@
 /// </summary>
 abstract class Expr
 {
-    /// <summary>
-    /// Visitor interface.
-    /// </summary>
-    /// <typeparam name="R">Result type.</typeparam>
     internal interface IVisitor<R>
     {
         R Visit(Binary expr);
@@ -19,17 +15,8 @@ abstract class Expr
         R Visit(Variable expr);
     }
 
-    /// <summary>
-    /// Abstract method for accepting a visitor.
-    /// </summary>
-    /// <typeparam name="R">Result type.</typeparam>
-    /// <param name="visitor"></param>
-    /// <returns></returns>
     public abstract R Accept<R>(IVisitor<R> visitor);
 
-    /// <summary>
-    /// Binary expression.
-    /// </summary>
     internal class Binary : Expr
     {
         public Binary(Expr left, Token op, Expr right)
@@ -49,9 +36,6 @@ abstract class Expr
         }
     }
 
-    /// <summary>
-    /// Assignment expression.
-    /// </summary>
     internal class Assign : Expr
     {
         public Assign(Token name, Expr value)
@@ -70,10 +54,6 @@ abstract class Expr
         }
     }
 
-
-    /// <summary>
-    /// Grouping expression.
-    /// </summary>
     internal class Grouping : Expr
     {
         public Grouping(Expr expression)
@@ -89,9 +69,6 @@ abstract class Expr
         }
     }
 
-    /// <summary>
-    /// Literal expression.
-    /// </summary>
     internal class Literal : Expr
     {
         public Literal(object? value)
@@ -107,9 +84,6 @@ abstract class Expr
         }
     }
 
-    /// <summary>
-    /// Unary expression.
-    /// </summary>
     internal class Unary : Expr
     {
         public Unary(Token op, Expr right)

@@ -14,6 +14,11 @@ class AstPrinter : Expr.IVisitor<string>
         return Parenthesize(expr.Op.Lexeme, expr.Left, expr.Right);
     }
 
+    public string Visit(Expr.Assign expr)
+    {
+        return $"{expr.Name.Lexeme} = {expr.Value}";
+    }
+
     public string Visit(Expr.Grouping expr)
     {
         return Parenthesize("group", expr.Expression);
@@ -34,12 +39,6 @@ class AstPrinter : Expr.IVisitor<string>
         return $"var {expr.Name}";
     }
 
-    /// <summary>
-    /// Helper method that prints an expression in parenthesis.
-    /// </summary>
-    /// <param name="name"></param>
-    /// <param name="exprs"></param>
-    /// <returns></returns>
     string Parenthesize(string name, params Expr[] exprs)
     {
         var builder = new StringBuilder($"({name}");

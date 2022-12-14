@@ -86,6 +86,11 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
+    public object? Visit(Expr.Assign expr)
+    {
+
+    }
+
     public object? Visit(Expr.Grouping expr)
     {
         return Evaluate(expr.Expression);
