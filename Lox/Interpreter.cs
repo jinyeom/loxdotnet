@@ -123,10 +123,22 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return environment.Get(expr.Name);
     }
 
-
     public object? Visit(Stmt.Expression stmt)
     {
         Evaluate(stmt.Expr);
+        return null;
+    }
+
+    public object? Visit(Stmt.If stmt)
+    {
+        if (IsTruthy(Evaluate(stmt.Condition)))
+        {
+            Evaluate(stmt.ThenStatement);
+        }
+        else if (stmt.ElseStatement != null)
+        {
+            Evaluate(stmt.ElseStatement);
+        }
         return null;
     }
 

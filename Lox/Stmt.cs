@@ -6,6 +6,7 @@ abstract class Stmt
     {
         R Visit(Block stmt);
         R Visit(Expression stmt);
+        R Visit(If stmt);
         R Visit(Print stmt);
         R Visit(Var stmt);
     }
@@ -35,6 +36,25 @@ abstract class Stmt
         }
 
         public Expr Expr { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
+
+    internal class If : Stmt
+    {
+        public If(Expr condition, Stmt thenStatement, Stmt? elseStatement)
+        {
+            Condition = condition;
+            ThenStatement = thenStatement;
+            ElseStatement = elseStatement;
+        }
+
+        public Expr Condition { get; init; }
+        public Stmt ThenStatement { get; init; }
+        public Stmt? ElseStatement { get; init; }
 
         public override R Accept<R>(IVisitor<R> visitor)
         {
