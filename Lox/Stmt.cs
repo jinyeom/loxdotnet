@@ -9,6 +9,7 @@ abstract class Stmt
         R Visit(If stmt);
         R Visit(Print stmt);
         R Visit(Var stmt);
+        R Visit(While stmt);
     }
 
     public abstract R Accept<R>(IVisitor<R> visitor);
@@ -86,8 +87,24 @@ abstract class Stmt
         }
 
         public Token Name { get; init; }
-
         public Expr? Initializer { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
+
+    internal class While : Stmt
+    {
+        public While(Expr condition, Stmt body)
+        {
+            Condition = condition;
+            Body = body;
+        }
+
+        public Expr Condition { get; init; }
+        public Stmt Body { get; init; }
 
         public override R Accept<R>(IVisitor<R> visitor)
         {

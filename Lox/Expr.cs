@@ -8,6 +8,7 @@ abstract class Expr
         R Visit(Assign expr);
         R Visit(Grouping expr);
         R Visit(Literal expr);
+        R Visit(Logical expr);
         R Visit(Unary expr);
         R Visit(Variable expr);
     }
@@ -74,6 +75,25 @@ abstract class Expr
         }
 
         public object? Value { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
+
+    internal class Logical : Expr
+    {
+        public Logical(Expr left, Token op, Expr right)
+        {
+            Left = left;
+            Op = op;
+            Right = right;
+        }
+
+        public Expr Left { get; init; }
+        public Token Op { get; init; }
+        public Expr Right { get; init; }
 
         public override R Accept<R>(IVisitor<R> visitor)
         {
