@@ -5,6 +5,7 @@ abstract class Expr
     internal interface IVisitor<R>
     {
         R Visit(Binary expr);
+        R Visit(Call expr);
         R Visit(Assign expr);
         R Visit(Grouping expr);
         R Visit(Literal expr);
@@ -34,6 +35,25 @@ abstract class Expr
         }
     }
 
+    internal class Call : Expr
+    {
+        public Call(Expr callee, Token paren, List<Expr> arguments)
+        {
+            Callee = callee;
+            Paren = paren;
+            Arguments = arguments;
+        }
+
+        public Expr Callee { get; init; }
+        public Token Paren { get; init; }
+        public List<Expr> Arguments { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
+
     internal class Assign : Expr
     {
         public Assign(Token name, Expr value)
@@ -43,7 +63,6 @@ abstract class Expr
         }
 
         public Token Name { get; init; }
-
         public Expr Value { get; init; }
 
         public override R Accept<R>(IVisitor<R> visitor)

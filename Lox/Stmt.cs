@@ -6,6 +6,7 @@ abstract class Stmt
     {
         R Visit(Block stmt);
         R Visit(Expression stmt);
+        R Visit(Function stmt);
         R Visit(If stmt);
         R Visit(Print stmt);
         R Visit(Var stmt);
@@ -16,12 +17,12 @@ abstract class Stmt
 
     internal class Block : Stmt
     {
-        public Block(IList<Stmt?> statements)
+        public Block(List<Stmt?> statements)
         {
             Statements = statements;
         }
 
-        public IList<Stmt?> Statements { get; init; }
+        public List<Stmt?> Statements { get; init; }
 
         public override R Accept<R>(IVisitor<R> visitor)
         {
@@ -37,6 +38,25 @@ abstract class Stmt
         }
 
         public Expr Expr { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
+
+    internal class Function : Stmt
+    {
+        public Function(Token name, List<Token> parameters, List<Stmt?> body)
+        {
+            Name = name;
+            Parameters = parameters;
+            Body = body;
+        }
+
+        public Token Name { get; init; }
+        public List<Token> Parameters { get; init; }
+        public List<Stmt?> Body { get; init; }
 
         public override R Accept<R>(IVisitor<R> visitor)
         {

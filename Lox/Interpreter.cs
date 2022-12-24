@@ -2,9 +2,19 @@
 
 class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
-    Environment environment = new Environment();
+    Environment environment;
 
-    public void Interpret(IList<Stmt> statements)
+    public Interpreter()
+    {
+        Globals = new Environment();
+        Globals.Define("clock", new NativeFunctions.Clock());
+
+        environment = Globals;
+    }
+
+    public Environment Globals { get; init; }
+
+    public void Interpret(List<Stmt> statements)
     {
         try
         {
@@ -86,6 +96,26 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
+    public object? Visit(Expr.Call expr)
+    {
+        var callee = Evaluate(expr.Callee);
+        var arguments = new List<object?>();
+        foreach (var argument in expr.Arguments)
+        {
+            arguments.Add(Evaluate(argument));
+        }
+        if (!(callee is ICallable))
+        {
+            throw new RuntimeError(expr.Paren, "Can only call functions and classes.");
+        }
+        var function = (ICallable)callee;
+        if (arguments.Count != function.Arity())
+        {
+            throw new RuntimeError(expr.Paren, $"Expected {function.Arity()} arguments but got {arguments.Count}.");
+        }
+        return function.Call(this, arguments);
+    }
+
     public object? Visit(Expr.Assign expr)
     {
         var value = Evaluate(expr.Value);
@@ -149,6 +179,13 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
+    public object? Visit(Stmt.Function stmt)
+    {
+        var function = new Function(stmt);
+        environment.Define(stmt.Name.Lexeme, function);
+        return null;
+    }
+
     public object? Visit(Stmt.If stmt)
     {
         if (IsTruthy(Evaluate(stmt.Condition)))
@@ -195,6 +232,26 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
+    public void ExecuteBlock(List<Stmt?> statements, Environment environment)
+    {
+        var previous = this.environment;
+        try
+        {
+            this.environment = environment;
+            foreach (var statement in statements)
+            {
+                if (statement != null)
+                {
+                    Execute(statement);
+                }
+            }
+        }
+        finally
+        {
+            this.environment = previous;
+        }
+    }
+
     object? Evaluate(Expr expr)
     {
         return expr.Accept(this);
@@ -239,26 +296,6 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         if (!(left is double && right is double))
         {
             throw new RuntimeError(op, "Operands must be numbers.");
-        }
-    }
-
-    void ExecuteBlock(IList<Stmt?> statements, Environment environment)
-    {
-        var previous = this.environment;
-        try
-        {
-            this.environment = environment;
-            foreach (var statement in statements)
-            {
-                if (statement != null)
-                {
-                    Execute(statement);
-                }
-            }
-        }
-        finally
-        {
-            this.environment = previous;
         }
     }
 }
