@@ -23,8 +23,14 @@ class Function : ICallable
             var argument = arguments[i];
             environment.Define(parameter, argument);
         }
-
-        interpreter.ExecuteBlock(declaration.Body, environment);
+        try
+        {
+            interpreter.ExecuteBlock(declaration.Body, environment);
+        }
+        catch (Return returnValue)
+        {
+            return returnValue.Value;
+        }
         return null;
     }
 

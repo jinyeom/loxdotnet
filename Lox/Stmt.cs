@@ -9,6 +9,7 @@ abstract class Stmt
         R Visit(Function stmt);
         R Visit(If stmt);
         R Visit(Print stmt);
+        R Visit(Return stmt);
         R Visit(Var stmt);
         R Visit(While stmt);
     }
@@ -91,6 +92,23 @@ abstract class Stmt
         }
 
         public Expr Expr { get; init; }
+
+        public override R Accept<R>(IVisitor<R> visitor)
+        {
+            return visitor.Visit(this);
+        }
+    }
+
+    internal class Return : Stmt
+    {
+        public Return(Token keyword, Expr? value)
+        {
+            Keyword = keyword;
+            Value = value;
+        }
+
+        public Token Keyword { get; init; }
+        public Expr? Value { get; init; }
 
         public override R Accept<R>(IVisitor<R> visitor)
         {

@@ -103,6 +103,10 @@ class Parser
         {
             return PrintStatement();
         }
+        if (Match(TokenType.Return))
+        {
+            return ReturnStatement();
+        }
         if (Match(TokenType.While))
         {
             return WhileStatement();
@@ -195,6 +199,18 @@ class Parser
         Expr value = Expression();
         Consume(TokenType.Semicolon, "Expect ';' after value.");
         return new Stmt.Print(value);
+    }
+
+    Stmt ReturnStatement()
+    {
+        var keyword = PreviousToken;
+        Expr? value = null;
+        if (!Check(TokenType.Semicolon))
+        {
+            value = Expression();
+        }
+        Consume(TokenType.Semicolon, "Expect ';' after return value.");
+        return new Stmt.Return(keyword, value);
     }
 
     Stmt WhileStatement()

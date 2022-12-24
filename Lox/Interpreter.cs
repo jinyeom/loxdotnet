@@ -206,6 +206,16 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
+    public object? Visit(Stmt.Return stmt)
+    {
+        object? value = null;
+        if (stmt.Value != null)
+        {
+            value = Evaluate(stmt.Value);
+        }
+        throw new Return(value);
+    }
+
     public object? Visit(Stmt.Block stmt)
     {
         ExecuteBlock(stmt.Statements, new Environment(environment));
