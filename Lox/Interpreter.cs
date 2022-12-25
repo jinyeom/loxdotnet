@@ -181,7 +181,7 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
     public object? Visit(Stmt.Function stmt)
     {
-        var function = new Function(stmt);
+        var function = new Function(stmt, environment);
         environment.Define(stmt.Name.Lexeme, function);
         return null;
     }

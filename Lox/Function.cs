@@ -3,10 +3,12 @@ namespace Lox;
 class Function : ICallable
 {
     readonly Stmt.Function declaration;
+    readonly Environment closure;
 
-    public Function(Stmt.Function declaration)
+    public Function(Stmt.Function declaration, Environment closure)
     {
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     public int Arity()
@@ -16,7 +18,7 @@ class Function : ICallable
 
     public object? Call(Interpreter interpreter, List<object?> arguments)
     {
-        var environment = new Environment(interpreter.Globals);
+        var environment = new Environment(closure);
         for (var i = 0; i < declaration.Parameters.Count; i++)
         {
             var parameter = declaration.Parameters[i].Lexeme;
