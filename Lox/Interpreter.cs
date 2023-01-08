@@ -14,7 +14,7 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
     public Environment Globals { get; init; }
 
-    public void Interpret(List<Stmt> statements)
+    public void Interpret(List<Stmt?> statements)
     {
         try
         {
@@ -29,8 +29,12 @@ class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         }
     }
 
-    void Execute(Stmt stmt)
+    void Execute(Stmt? stmt)
     {
+        if (stmt == null)
+        {
+            return;
+        }
         stmt.Accept(this);
     }
 
